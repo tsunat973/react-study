@@ -34,6 +34,48 @@ app.post("/todos", (req,res) => {
     res.status(201).json(newTodo);
 })
 
+//GET /todos/:id 単体取得
+app.get("/todos/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const todo = todos.find((t) => t.id === id);
+
+    if(!todo) {
+        return res.status(404).json({ error: `id=${id} のtodo は見つかりません`})
+    }
+
+    res.json(todo);
+})
+
+
+//PUT /todos/:id ... 更新
+app.put("/todos/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const todo = todos.find((t) => t.id === id);
+
+    if(!todo) {
+        return res.status(404).json({ error: `id=${id} のtodoが見つかりません`});
+    }
+
+    const { title, done } = req.body;
+
+    if(title !== undefined) {
+        if (typeof title !== "string" || title.trim() === "") {
+            return res.status(400).json({error: "titleはから出ない文字列である必要があります"});
+        }
+        todo.title = title;
+    }
+
+    if (done !== undefined) {
+        if (typeof done !== "boolean") {
+            return res.status(400).json({error: "doneは真偽値である必要があります"});
+        }
+        todo.done = done;
+    }
+
+    res.json(todo);
+});
+
+
 app.listen(PORT, () => {
     console.log(`Server listening on http://localhost:${PORT}`);
 });
