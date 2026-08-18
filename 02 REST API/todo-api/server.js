@@ -7,28 +7,28 @@ let nextId = 3; //既存のidの次から始める
 
 //仮のデータ
 let todos = [
-    {id: 1, title: "Expressの基本を復習する", done: false },
-    {id: 2, title: "RESTの設計原則を確認する", done: false },
+    { id: 1, title: "Expressの基本を復習する", done: false },
+    { id: 2, title: "RESTの設計原則を確認する", done: false },
 ];
 
-app.get("/", (req,res) => {
+app.get("/", (req, res) => {
     res.json({ message: "Hello REST API" });
 });
 
 //GET /todos 一覧を返す
-app.get("/todos", (req,res) => {
+app.get("/todos", (req, res) => {
     res.json(todos);
 });
 
 //POST 新規作成
-app.post("/todos", (req,res) => {
+app.post("/todos", (req, res) => {
     //req.bodyはリクエストボディ
     const { title } = req.body;
-    if(!title || typeof title !== "string") {
-        return res.status(400).json({ error: "titleは必須の文字列です"});
+    if (!title || typeof title !== "string") {
+        return res.status(400).json({ error: "titleは必須の文字列です" });
     }
 
-    const newTodo = { id: nextId++,title, done: false };
+    const newTodo = { id: nextId++, title, done: false };
     todos.push(newTodo);
 
     res.status(201).json(newTodo);
@@ -39,8 +39,8 @@ app.get("/todos/:id", (req, res) => {
     const id = Number(req.params.id);
     const todo = todos.find((t) => t.id === id);
 
-    if(!todo) {
-        return res.status(404).json({ error: `id=${id} のtodo は見つかりません`})
+    if (!todo) {
+        return res.status(404).json({ error: `id=${id} のtodo は見つかりません` })
     }
 
     res.json(todo);
@@ -52,28 +52,45 @@ app.put("/todos/:id", (req, res) => {
     const id = Number(req.params.id);
     const todo = todos.find((t) => t.id === id);
 
-    if(!todo) {
-        return res.status(404).json({ error: `id=${id} のtodoが見つかりません`});
+    if (!todo) {
+        return res.status(404).json({ error: `id=${id} のtodoが見つかりません` });
     }
 
     const { title, done } = req.body;
 
-    if(title !== undefined) {
+    if (title !== undefined) {
         if (typeof title !== "string" || title.trim() === "") {
-            return res.status(400).json({error: "titleはから出ない文字列である必要があります"});
+            return res.status(400).json({ error: "titleはから出ない文字列である必要があります" });
         }
         todo.title = title;
     }
 
     if (done !== undefined) {
         if (typeof done !== "boolean") {
-            return res.status(400).json({error: "doneは真偽値である必要があります"});
+            return res.status(400).json({ error: "doneは真偽値である必要があります" });
         }
         todo.done = done;
     }
 
     res.json(todo);
 });
+
+//DELETE /todos/:id ...削除
+app.delete("/todos/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const deleteTodo = todos.find((t) => t.id === id);
+
+    if (!deleteTodo) {
+        return res.status(404).json({ error: `id=${id}のtodoが見つかりません` });
+    }
+    const index = todos.findIndex((t) => t.id === id);
+
+    todos.splice(index, 1);
+
+    res.status(200).json(deleteTodo)
+
+
+})
 
 
 app.listen(PORT, () => {
