@@ -2,6 +2,7 @@ import axios from "axios";
 import Image from "next/image";
 import {MicrocmsResponse, QiitaResponse} from "@/domain/Article";
 
+
 export default async function Home() {
   const getQiitaItems = async () => {
     const response = await axios.get<QiitaResponse[]>(
