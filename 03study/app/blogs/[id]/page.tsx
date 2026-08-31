@@ -1,20 +1,42 @@
-
+import Image from "next/image";
+import { MicrocmsContent } from "@/domain/Article";
+import axios from "axios";
 import { Suspense } from "react";
+import ReloadButton from "./ReloadButton";
 
 async function BlogContent({ params }: { params: Promise<{ id: string }> }) {
+  "use cache"
   const { id } = await params;
+
+  const response = await axios.get<MicrocmsContent>(
+     `https://gsnz1d1ua1.microcms.io/api/v1/blogs/${id}`,
+      {
+        headers: {
+          "X-MICROCMS-API-KEY": process.env.MICROCMS_API_KEY,
+        },
+      }
+  );
+
+  const blog = response.data;
   return (
-    <div>
-      <h1>BlogDetailページ</h1>
-      <p>ID: {id}</p>
-    </div>
+    <article>
+      <Image src={blog.eyecatch.url} width={100} height={100} alt="" />
+      <h2>{blog.title}</h2>
+      <div dangerouslySetInnerHTML={{ __html: blog.content }} />
+      <ReloadButton id={id} />
+
+    </article>
   );
 }
 
 export default function BlogDetail({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <BlogContent params={params} />
-    </Suspense>
+    <div>
+      <h1>ブログ詳細</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <BlogContent params={params} />
+      </Suspense>
+    </div>
+
   );
 }
